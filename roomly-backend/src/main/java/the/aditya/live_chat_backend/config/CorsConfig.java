@@ -14,7 +14,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:5173",
                         "http://192.168.0.102:5173",
-                        "https://group-chat-app-phi.vercel.app"
+                        "https://roomly-chat-psi.vercel.app"
                 )
                 .allowedMethods("*")
                 .allowedHeaders("*")
