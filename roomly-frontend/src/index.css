@@ -17,3 +17,17 @@
 .animate-message {
   animation: fadeInMessage .25s ease;
 }
+
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+  background: #050914;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+}

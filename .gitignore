@@ -1,22 +1,22 @@
-# IntelliJ
-.idea/
-out/
-*.iml
+# Frontend
+node_modules/
+dist/
 
 # Backend
-live-chat-backend/target/
-live-chat-backend/uploads/
+target/
+*.class
 
-# Frontend
-live-chat-frontend/node_modules/
-live-chat-frontend/dist/
+# IntelliJ
+.idea/
+*.iml
 
-# Logs
-*.log
-
-# Environment
+# Secrets
 .env
+*.env
+application-local.properties
 
-# OS
-Thumbs.db
-.DS_Store
+# Runtime
+uploads/
+
+# Build
+out/

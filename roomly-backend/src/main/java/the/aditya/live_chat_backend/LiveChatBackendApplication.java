@@ -11,6 +11,3 @@ public class LiveChatBackendApplication {
 		System.out.println("Spring Boot Application Started");
 	}
 }
-
-//cd /d "D:\Cloudflare Tunnel"
-//cloudflared.exe tunnel --url http://localhost:8080
