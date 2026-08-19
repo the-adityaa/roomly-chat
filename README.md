@@ -7,7 +7,7 @@ A real-time group chat application built using **Spring Boot**, **React**, **Web
 ## 🚀 Live Demo
 
 **Frontend:**  
-https://group-chat-app-phi.vercel.app
+https://roomly-chat-psi.vercel.app/
 
 > **Note:** The backend is hosted using a Cloudflare Quick Tunnel. It is available only while the host PC is running.
 
