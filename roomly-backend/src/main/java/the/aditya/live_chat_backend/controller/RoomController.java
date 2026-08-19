@@ -89,5 +89,9 @@ public class RoomController {
         return ResponseEntity.ok(messages.subList(start, end));
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Roomly backend is working");
+    }
 
 }
