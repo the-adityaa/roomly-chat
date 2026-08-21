@@ -13,7 +13,6 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:5173",
-                        "http://192.168.0.102:5173",
                         "https://roomly-chat-psi.vercel.app"
                 )
                 .allowedMethods("*")

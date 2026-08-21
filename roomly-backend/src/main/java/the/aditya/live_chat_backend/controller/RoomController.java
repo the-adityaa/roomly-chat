@@ -5,8 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import the.aditya.live_chat_backend.entities.Message;
 import the.aditya.live_chat_backend.entities.Room;
+import the.aditya.live_chat_backend.repository.MessageRepository;
 import the.aditya.live_chat_backend.repository.RoomRepository;
 import the.aditya.live_chat_backend.util.RoomIdGenerator;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.Map;
 import java.util.List;
@@ -17,19 +23,21 @@ import java.util.Optional;
 public class RoomController {
 
     private final RoomRepository roomRepository;
+    private final MessageRepository messageRepository;
 
-    public RoomController(RoomRepository roomRepository) {
+    public RoomController(
+            RoomRepository roomRepository,
+            MessageRepository messageRepository
+    ) {
         this.roomRepository = roomRepository;
+        this.messageRepository = messageRepository;
     }
 
     // Create Room
-
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody Map<String, String> body) {
 
         String roomId = body.get("roomId");
-
-        System.out.println("Create Room = [" + roomId + "]");
 
         if (roomRepository.findByRoomId(roomId).isPresent()) {
             return ResponseEntity.badRequest()
@@ -55,8 +63,6 @@ public class RoomController {
     @GetMapping("/{roomId}")
     public ResponseEntity<?> joinRoom(@PathVariable String roomId) {
 
-        System.out.println("Join Room = [" + roomId + "]");
-
         Optional<Room> room = roomRepository.findByRoomId(roomId);
 
         if (room.isEmpty()) {
@@ -72,7 +78,7 @@ public class RoomController {
     public ResponseEntity<List<Message>> getMessages(
             @PathVariable String roomId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size
+            @RequestParam(value = "size", defaultValue = "50") int size
     ) {
 
         Optional<Room> room = roomRepository.findByRoomId(roomId);
@@ -81,17 +87,22 @@ public class RoomController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Message> messages = room.get().getMessages();
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.ASC, "timeStamp")
+        );
 
-        int start = Math.max(0, messages.size() - (page + 1) * size);
-        int end = Math.min(start + size, messages.size());
+        Page<Message> messagePage = messageRepository.findByRoom(
+                room.get(),
+                pageable
+        );
 
-        return ResponseEntity.ok(messages.subList(start, end));
+        return ResponseEntity.ok(messagePage.getContent());
     }
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("Roomly backend is working");
     }
-
 }

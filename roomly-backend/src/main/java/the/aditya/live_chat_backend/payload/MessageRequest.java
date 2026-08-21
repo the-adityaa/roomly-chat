@@ -20,4 +20,6 @@ public class MessageRequest {
     private String fileName;
     private String messageType;
 
+    private String clientMessageId;
+
 }

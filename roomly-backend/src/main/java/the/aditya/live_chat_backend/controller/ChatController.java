@@ -1,6 +1,5 @@
 package the.aditya.live_chat_backend.controller;
 
-
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -17,7 +16,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import the.aditya.live_chat_backend.payload.OnlineUsersResponse;
 import the.aditya.live_chat_backend.payload.UserPresence;
 import the.aditya.live_chat_backend.service.OnlineUserService;
-
 
 @Controller
 public class ChatController {
@@ -38,12 +36,13 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    // for sending and receiving messages
-
     @MessageMapping("/join")
     public void joinRoom(@RequestBody UserPresence request) {
 
-        onlineUserService.addUser(request.getRoomId(), request.getUsername());
+        onlineUserService.addUser(
+                request.getRoomId(),
+                request.getUsername()
+        );
 
         messagingTemplate.convertAndSend(
                 "/topic/room/" + request.getRoomId() + "/users",
@@ -57,7 +56,10 @@ public class ChatController {
     @MessageMapping("/leave")
     public void leaveRoom(@RequestBody UserPresence request) {
 
-        onlineUserService.removeUser(request.getRoomId(), request.getUsername());
+        onlineUserService.removeUser(
+                request.getRoomId(),
+                request.getUsername()
+        );
 
         messagingTemplate.convertAndSend(
                 "/topic/room/" + request.getRoomId() + "/users",
@@ -74,24 +76,27 @@ public class ChatController {
             @DestinationVariable String roomId,
             @RequestBody MessageRequest request
     ) {
+
         Room room = roomRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
-            Message message = new Message();
-            message.setId(UUID.randomUUID().toString());
+        Message message = new Message();
 
-            message.setContent(request.getContent());
-            message.setSender(request.getSender());
-            message.setTimeStamp(LocalDateTime.now());
+        message.setId(UUID.randomUUID().toString());
+        message.setContent(request.getContent());
+        message.setSender(request.getSender());
+        message.setTimeStamp(LocalDateTime.now());
 
-            message.setMessageType(request.getMessageType());
-            message.setFileName(request.getFileName());
-            message.setFileUrl(request.getFileUrl());
+        message.setMessageType(request.getMessageType());
+        message.setFileName(request.getFileName());
+        message.setFileUrl(request.getFileUrl());
 
-            message.setRoom(room);
+        message.setClientMessageId(request.getClientMessageId());
 
-            messageRepository.save(message);
+        message.setRoom(room);
 
-            return message;
+        messageRepository.save(message);
+
+        return message;
     }
 }

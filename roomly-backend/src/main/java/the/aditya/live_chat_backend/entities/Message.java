@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
@@ -29,6 +28,8 @@ public class Message {
     private String fileUrl;
     private String fileName;
     private String messageType;
+
+    private String clientMessageId;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
