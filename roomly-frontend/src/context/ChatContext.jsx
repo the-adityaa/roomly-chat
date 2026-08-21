@@ -5,23 +5,23 @@ const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
 
   const [roomId, setRoomId] = useState(
-    sessionStorage.getItem("roomId") || ""
+    localStorage.getItem("roomly_room") || ""
   );
 
   const [currentUser, setCurrentUser] = useState(
-    sessionStorage.getItem("currentUser") || ""
+    localStorage.getItem("roomly_user") || ""
   );
 
   const [connected, setConnected] = useState(false);
 
   const updateRoomId = (id) => {
     setRoomId(id);
-    sessionStorage.setItem("roomId", id);
+    localStorage.setItem("roomly_room", id);
   };
 
   const updateCurrentUser = (user) => {
     setCurrentUser(user);
-    sessionStorage.setItem("currentUser", user);
+    localStorage.setItem("roomly_user", user);
   };
 
   const clearChatSession = () => {
@@ -29,8 +29,8 @@ export const ChatProvider = ({ children }) => {
     setCurrentUser("");
     setConnected(false);
 
-    sessionStorage.removeItem("roomId");
-    sessionStorage.removeItem("currentUser");
+    localStorage.removeItem("roomly_room");
+    localStorage.removeItem("roomly_user");
   };
 
   return (

@@ -51,6 +51,10 @@ const JoinCreateChat = () => {
       setCurrentUser(detail.userName.trim());
       setRoomId(room.roomId);
       setConnected(true);
+
+      localStorage.setItem("roomly_user", detail.userName.trim());
+      localStorage.setItem("roomly_room", room.roomId);
+
       navigate("/chat");
     } catch (error) {
       if (error.status === 400) {
@@ -77,6 +81,10 @@ const JoinCreateChat = () => {
       setCurrentUser(detail.userName.trim());
       setRoomId(response.roomId);
       setConnected(true);
+
+      localStorage.setItem("roomly_user", detail.userName.trim());
+      localStorage.setItem("roomly_room", room.roomId);
+
       navigate("/chat");
     } catch (error) {
       if (error.status === 400) {

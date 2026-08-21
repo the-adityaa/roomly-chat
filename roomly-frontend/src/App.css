@@ -306,12 +306,14 @@
   width: 280px;
   flex: 0 0 280px;
   min-height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(148, 163, 184, 0.12);
   background: #0d1422;
 }
-
 .sidebar-brand {
   height: 76px;
   padding: 0 20px;
@@ -320,6 +322,7 @@
   gap: 11px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.10);
 }
+
 
 .sidebar-logo {
   width: 38px;
@@ -551,6 +554,21 @@
 .sidebar-bottom {
   padding: 12px 14px 16px;
   border-top: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+@media (max-width: 620px) {
+
+  .sidebar-bottom {
+    flex-shrink: 0;
+    padding-bottom: 20px;
+  }
+
+  .members-section {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+  }
+
 }
 
 .your-color-card {
