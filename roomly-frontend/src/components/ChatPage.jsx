@@ -13,6 +13,7 @@ import { getUserColor, getUserAvatar } from "../utils/chatColor";
 import EmojiPicker from "emoji-picker-react";
 import { BsEmojiSmile } from "react-icons/bs";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 const ChatPage = () => {
   const { roomId, currentUser, connected, setConnected, setRoomId, setCurrentUser } = useChatContext();
@@ -28,11 +29,15 @@ const ChatPage = () => {
   const inputRef = useRef(null);
   const chatBoxRef = useRef(null);
 
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
   const myColor = useMemo(() => getUserColor(currentUser), [currentUser]);
 
   useEffect(() => {
-    if (!connected) navigate("/");
-  }, [connected, navigate]);
+    if (!roomId || !currentUser) {
+      navigate("/");
+    }
+  }, [roomId, currentUser, navigate]);
 
   useEffect(() => {
     async function loadMessages() {
@@ -53,40 +58,57 @@ const ChatPage = () => {
   }, [messages]);
 
   useEffect(() => {
-    const connectWebSocket = () => {
-      const sock = new SockJS(`${baseURL}/chat`);
-      const client = Stomp.over(sock);
+    if (!roomId || !currentUser) return;
 
-      client.connect({}, () => {
-        setStompClient(client);
-        toast.success("Connected");
+    const sock = new SockJS(`${baseURL}/chat`);
+    const client = Stomp.over(sock);
 
-        client.subscribe(`/topic/room/${roomId}`, (message) => {
-          const newMessage = JSON.parse(message.body);
-          setMessages((prev) => [...prev, newMessage]);
+    client.connect({}, () => {
+      console.log("STOMP CONNECTED", client.connected);
+      setStompClient(client);
+      setConnected(true);
+
+      toast.success("Connected");
+
+      client.subscribe(`/topic/room/${roomId}`, (message) => {
+        const newMessage = JSON.parse(message.body);
+
+        setMessages((prev) => {
+          const alreadyExists = prev.some(
+            (msg) =>
+              msg.clientMessageId &&
+              msg.clientMessageId === newMessage.clientMessageId
+          );
+
+          if (alreadyExists) {
+            return prev;
+          }
+          return [...prev, newMessage];
         });
-
-        client.subscribe(`/topic/room/${roomId}/users`, (message) => {
-          const response = JSON.parse(message.body);
-          setOnlineUsers(response.users || []);
-        });
-
-        client.send(
-          "/app/join",
-          {},
-          JSON.stringify({ roomId, username: currentUser })
-        );
       });
-    };
 
-    if (connected) connectWebSocket();
+      client.subscribe(`/topic/room/${roomId}/users`, (message) => {
+        const response = JSON.parse(message.body);
+
+        setOnlineUsers(response.users || []);
+      });
+
+      client.send(
+        "/app/join",
+        {},
+        JSON.stringify({
+          roomId,
+          username: currentUser,
+        })
+      );
+    });
 
     return () => {
-      if (stompClient?.connected) stompClient.disconnect();
+      if (client.connected) {
+        client.disconnect();
+      }
     };
-    // connection is intentionally recreated for room changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, connected]);
+  }, [roomId, currentUser, setConnected]);
 
   const onEmojiClick = (emojiData) => {
     setInput((prev) => prev + emojiData.emoji);
@@ -111,31 +133,55 @@ const ChatPage = () => {
   };
 
   const sendMessage = async () => {
-    if (!stompClient || !connected) return;
+    if (!stompClient || !connected) {
+      console.log("SEND BLOCKED", {
+        stompClient,
+        connected
+      });
+      return;
+    }
 
     let uploadResponse = null;
+
     if (selectedFile) {
       uploadResponse = await uploadFile();
+
       if (!uploadResponse) return;
     }
 
     if (!input.trim() && !uploadResponse) return;
 
     const message = {
+      clientMessageId: uuidv4(),
       sender: currentUser,
       roomId,
       content: input,
+      timeStamp: new Date().toISOString(),
       fileUrl: uploadResponse?.fileUrl || null,
       fileName: uploadResponse?.fileName || null,
       messageType: uploadResponse?.messageType || "TEXT",
     };
 
-    stompClient.send(`/app/sendMessage/${roomId}`, {}, JSON.stringify(message));
+    // 1. Immediately show message in UI
+    setMessages((prev) => [...prev, message]);
+
+    console.log("SENDING MESSAGE", message);
+
+    // 2. Send through WebSocket
+    stompClient.send(
+      `/app/sendMessage/${roomId}`,
+      {},
+      JSON.stringify(message)
+    );
+
     setInput("");
     setSelectedFile(null);
 
     const fileInput = document.getElementById("fileInput");
-    if (fileInput) fileInput.value = "";
+
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   const handleLogout = () => {
@@ -151,6 +197,10 @@ const ChatPage = () => {
     setConnected(false);
     setRoomId("");
     setCurrentUser("");
+
+    sessionStorage.removeItem("roomId");
+    sessionStorage.removeItem("currentUser");
+
     navigate("/");
   };
 
@@ -170,7 +220,15 @@ const ChatPage = () => {
 
   return (
     <div className="chat-shell">
-      <aside className="chat-sidebar">
+      <aside
+        className={`chat-sidebar ${showMobileSidebar ? "mobile-sidebar-open" : ""}`}
+      >
+        <button
+          className="mobile-sidebar-close"
+          onClick={() => setShowMobileSidebar(false)}
+        >
+          ×
+        </button>
         <div className="sidebar-brand">
           <div className="sidebar-logo">
             <span />
@@ -249,6 +307,13 @@ const ChatPage = () => {
 
       <section className="chat-main">
         <header className="chat-header">
+          <button
+            className="mobile-menu-button"
+            onClick={() => setShowMobileSidebar(true)}
+            title="Active users"
+          >
+            <FiUsers />
+          </button>
           <div className="chat-title-group">
             <div className="chat-title-icon"><FiHash /></div>
             <div>
@@ -281,7 +346,7 @@ const ChatPage = () => {
 
                 return (
                   <div
-                    key={index}
+                    key={message.clientMessageId || message.id || index}
                     className={`message-row ${isMine ? "message-row-mine" : "message-row-other"} animate-message`}
                   >
                     {!isMine && (

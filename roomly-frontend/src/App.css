@@ -290,10 +290,16 @@
    ========================= */
 
 .chat-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
+  overflow: hidden;
   background: #080d18;
   color: #e5e7eb;
+}
+
+.mobile-sidebar-close,
+.mobile-menu-button {
+  display: none;
 }
 
 .chat-sidebar {
@@ -539,7 +545,7 @@
   height: 8px;
   flex: 0 0 8px;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.025);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .025);
 }
 
 .sidebar-bottom {
@@ -581,7 +587,7 @@
   width: 18px;
   height: 18px;
   border-radius: 6px;
-  box-shadow: 0 0 0 4px rgba(255,255,255,.035);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .035);
 }
 
 .leave-button {
@@ -613,7 +619,7 @@
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(circle at 75% 0%, rgba(99,102,241,.06), transparent 30%),
+    radial-gradient(circle at 75% 0%, rgba(99, 102, 241, .06), transparent 30%),
     #101827;
 }
 
@@ -751,7 +757,7 @@
   padding: 10px 13px;
   border: 1px solid rgba(148, 163, 184, 0.10);
   border-radius: 15px;
-  box-shadow: 0 8px 22px rgba(0,0,0,.10);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .10);
 }
 
 .message-card-other {
@@ -827,10 +833,10 @@
   display: grid;
   place-items: center;
   margin-bottom: 13px;
-  border: 1px solid rgba(129,140,248,.15);
+  border: 1px solid rgba(129, 140, 248, .15);
   border-radius: 18px;
   color: #a5b4fc;
-  background: rgba(99,102,241,.08);
+  background: rgba(99, 102, 241, .08);
   font-size: 22px;
 }
 
@@ -855,7 +861,7 @@
   right: 0;
   bottom: 0;
   padding: 12px 24px 18px;
-  background: linear-gradient(to top, #101827 70%, rgba(16,24,39,0));
+  background: linear-gradient(to top, #101827 70%, rgba(16, 24, 39, 0));
 }
 
 .composer {
@@ -866,10 +872,10 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  border: 1px solid rgba(148,163,184,.15);
+  border: 1px solid rgba(148, 163, 184, .15);
   border-radius: 16px;
   background: #111c2c;
-  box-shadow: 0 12px 30px rgba(0,0,0,.20);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .20);
 }
 
 .composer input {
@@ -908,13 +914,13 @@
 
 .composer-button:hover {
   color: #e2e8f0;
-  background: rgba(148,163,184,.08);
+  background: rgba(148, 163, 184, .08);
 }
 
 .send-button {
   color: white;
   background: #6366f1;
-  box-shadow: 0 6px 16px rgba(99,102,241,.22);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, .22);
 }
 
 .send-button:hover {
@@ -935,7 +941,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid rgba(148,163,184,.13);
+  border: 1px solid rgba(148, 163, 184, .13);
   border-radius: 11px;
   color: #cbd5e1;
   background: #111c2c;
@@ -955,8 +961,12 @@
   border: 0;
   border-radius: 7px;
   color: #fca5a5;
-  background: rgba(239,68,68,.08);
+  background: rgba(239, 68, 68, .08);
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .chat-sidebar {}
 }
 
 @media (max-width: 800px) {
@@ -985,6 +995,7 @@
 }
 
 @media (max-width: 620px) {
+
   html,
   body,
   #root {
@@ -1002,9 +1013,7 @@
     overflow: hidden;
   }
 
-  .chat-sidebar {
-    display: none;
-  }
+  .chat-sidebar {}
 
   .chat-main {
     width: 100%;
@@ -1079,7 +1088,7 @@
     width: 100%;
     padding: 7px 9px max(9px, env(safe-area-inset-bottom));
     background: #101827;
-    border-top: 1px solid rgba(148,163,184,.08);
+    border-top: 1px solid rgba(148, 163, 184, .08);
     z-index: 10;
   }
 
@@ -1125,5 +1134,70 @@
   .empty-chat {
     min-height: 100%;
     padding: 20px;
+  }
+}
+
+
+@media (max-width: 620px) {
+
+  .chat-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 82%;
+    max-width: 320px;
+    height: 100dvh;
+    z-index: 1000;
+
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+
+    display: flex;
+  }
+
+  .chat-sidebar.mobile-sidebar-open {
+    transform: translateX(0);
+  }
+
+  .mobile-sidebar-close {
+    display: flex;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    width: 32px;
+    height: 32px;
+
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .mobile-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    margin-right: 8px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+
+    cursor: pointer;
   }
 }
